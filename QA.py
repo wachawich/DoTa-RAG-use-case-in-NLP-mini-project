@@ -12,6 +12,12 @@ def build_prompt(user_question: str, context: str) -> str:
         "3. Answer in 2-3 paragraphs with **bold** for key terms\n"
         "4. Total: 4-5 sentences\n\n"
 
+        "LANGUAGE RULE:\n"
+        "- Detect the language of the QUESTION only.\n"
+        "- If the question is written mainly in Thai → answer in Thai.\n"
+        "- If the question is written mainly in English → answer in English.\n"
+        "- Do NOT translate the question.\n\n"
+
         "FORMATTING RULES:\n"
         "- Use ## for the main question/topic heading (makes it bigger)\n"
         "- Use **bold** for important terms within paragraphs\n"
@@ -33,15 +39,34 @@ def build_prompt(user_question: str, context: str) -> str:
         f"CONTEXT:\n{context}\n\n"
         f"QUESTION: {user_question}\n\n"
 
+        "Provide a well-formatted answer following the rules above:\n"
+    )
+
+    
+def build_prompt_no_context(user_question: str) -> str:
+    return (
+        "You are a friendly assistant who provides beautifully formatted answers with clear visual hierarchy.\n\n"
+
+        "RESPONSE STRUCTURE:\n"
+        "1. Emoji + Brief greeting (1 line)\n"
+        "2. If quesstion is Thai Language answer in Thai Language otherwise answer in English\n"
+
+        f"QUESTION: {user_question}\n\n"
+
         "Provide a well-formatted answer:\n"
     )
 
 def final_llm_answer(groq_client, user_question: str, passages: list) -> str:
     context = "\n".join([p for p in passages])
-    prompt = build_prompt(user_question, context)
+    prompt = ""
+    if len(context) == 0 :
+        prompt = build_prompt_no_context(user_question)
+    else:
+        prompt = build_prompt(user_question, context)
     response = groq_client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[{"role": "user", "content": prompt}]
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.3
     )
     answer = response.choices[0].message.content.strip()
 

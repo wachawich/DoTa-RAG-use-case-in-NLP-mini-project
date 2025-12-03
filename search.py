@@ -1,11 +1,13 @@
 from typing import List, Dict
 import json
+import streamlit as st
 
 
 def llm_rewrite_query(question: str, groq_client) -> str:
     system_prompt = (
         "You rewrite user queries to be clearer and more suitable for document retrieval. "
         "Keep the meaning the same, but remove noise and make it concise."
+        "If user queries is Thai Language translate to english before rewrite."
     )
     messages = [
         {"role": "system", "content": system_prompt},
@@ -147,17 +149,20 @@ def rag_search(
       5) รวม candidates แล้ว rerank เหลือ final_k
     """
     # 1) rewrite query
+    st.write("Step 1: Rewrite query input.")
     rewritten = llm_rewrite_query(question, groq_client)
 
     # 2) namespace routing
+    st.write("Step 2: Routing name space.")
     all_ns = get_all_namespaces(index)
     routed_ns = llm_route_namespaces(groq_client, rewritten, all_ns, top_k=ns_top_k)
 
-    # ถ้า LLM ไม่เลือกอะไรเลย ใช้ namespace ทั้งหมด
     if not routed_ns:
-        routed_ns = all_ns
+        return []
 
-    # 3) multi-namespace search
+
+    # 3) multi-namespace search\
+    st.write("Step 3: Searching in Vector DB with name space.")
     passages = search_in_namespaces(
         model,
         index,
@@ -167,6 +172,7 @@ def rag_search(
     )
 
     # 4) rerank → top_k
+    st.write("Step 4: Rerank top_k documents.")
     top_passages = cohere_rerank(co, rewritten, passages, top_k=final_k)
 
     # return {

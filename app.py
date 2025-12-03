@@ -28,7 +28,7 @@ sentence_model = SentenceTransformer("Snowflake/snowflake-arctic-embed-m-v1.5")
 # STREAMLIT PAGE CONFIG
 # --------------------------
 st.set_page_config(page_title="RAG Chatbot", layout="wide")
-st.title("🤖 RAG QA Chatbot (Chat Mode)")
+st.title("🤖 RAG Wikipedia QA")
 
 
 # --------------------------
@@ -61,7 +61,8 @@ if user_input:
 
     # BOT RESPONSE
     with st.chat_message("assistant"):
-        with st.spinner("Processing RAG..."):
+        # with st.spinner("Processing RAG..."):
+        with st.status("Processing your question...", expanded=True) as status:
 
             # 1) RAG search
             result = rag_search(
@@ -75,10 +76,17 @@ if user_input:
                 final_k=10
             )
 
+            print(result)
             # 2) LLM answer
+            if len(result) == 0:
+                st.write("Step 3: Ask with AI.")
+            else :
+                st.write("Step 5: Ask with AI.")
             response = ask(groq_client, result, user_input)
+            
+            status.update(label="✨ Completed!", state="complete")
 
-            st.write(response)
+        st.write(response)
 
     # save bot reply to history
     st.session_state.messages.append({"role": "assistant", "content": response})
