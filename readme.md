@@ -2,6 +2,21 @@
 
 ref : DoTA-RAG Paper : https://arxiv.org/html/2506.12571v1
 
+
+<br>
+
+### NLP Group
+
+*NATTHINAN KERDSRI - Data Collection* <br>
+*NATTHAPOL PREMKAMON - Vector store builder* <br>
+*WACHIRAWIT PREMTHAISONG - Project Manager* <br>
+*TANYATORN KONGTHONGLANG - Model Prompt Engineering* <br>
+*NAPADECH KAEWNOK - Searching Optimization* <br>
+
+<br>
+
+
+
 ## 1. Time Complexity Optimization
 
 ### ปัญหาของ Traditional RAG
